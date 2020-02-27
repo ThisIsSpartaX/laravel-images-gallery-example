@@ -2,6 +2,7 @@
 
 namespace App\Models\Picture;
 
+use App\Services\PictureService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,6 +40,6 @@ class Picture extends Model
 
     public function getUrlAttribute()
     {
-        return '/uploads/pictures/' . $this->filename;
+        return '/' . PictureService::getPicturesDirectory() . '/' . $this->filename;
     }
 }
