@@ -14,7 +14,8 @@
         "kraken-io/kraken-php": "^1.6",
         "laravel/framework": "^6.2",
         "laravel/tinker": "^2.0",
-        "league/flysystem-aws-s3-v3": "^1.0"
+        "league/flysystem-aws-s3-v3": "^1.0",
+        "ralouphie/mimey": "^2.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",

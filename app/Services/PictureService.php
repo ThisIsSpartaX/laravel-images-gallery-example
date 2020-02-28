@@ -44,6 +44,44 @@ class PictureService
     }
 
     /**
+     * Get image by URL and validate it
+     *
+     * @param $url
+     * @return string
+     * @throws
+     */
+    public function getByUrl($url) {
+
+        $client = new \GuzzleHttp\Client();
+
+        try {
+            $response = $client->get($url);
+
+            $mimes = new \Mimey\MimeTypes;
+            $extension = $mimes->getExtension($response->getHeaderLine('Content-Type'));
+            if($extension != 'jpg' && $extension != 'png') {
+                throw new \Exception('Неверный формат файла. Укажите изображение формата JPG, PNG');
+            }
+
+            return $response;
+
+        } catch (\Exception $e) {
+            if($e instanceof ClientException) {
+                if($e->getCode() === 404) {
+                    throw new \Exception('Файл, указанный в URL, не найден на внешнем ресурсе.');
+                }
+                if($e->getCode() === 401 || $e->getCode() === 403) {
+                    throw new \Exception('Нет доступа.');
+                }
+                throw new \Exception('Ощибка на внещнем ресурсе');
+            }
+            throw $e;
+        }
+
+
+    }
+
+    /**
      * Store picture to local Storage, save picture to DB and start Job
      *
      * @param string $fileContent

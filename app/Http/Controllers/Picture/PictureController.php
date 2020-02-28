@@ -6,6 +6,7 @@ use App\Models\Picture\Picture;
 use App\Services\PictureService;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Picture\Requests\StorePictureRequest;
+use App\Http\Controllers\Picture\Requests\StoreExternalPictureRequest;
 
 class PictureController extends Controller
 {
@@ -71,10 +72,28 @@ class PictureController extends Controller
     /**
      * Store External Picture
      *
+     * @param StoreExternalPictureRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
      */
-    public function externalStore()
+    public function externalStore(StoreExternalPictureRequest $request)
     {
+        $pictureService = new PictureService();
 
+        try {
+            $response = $pictureService->getByUrl($request->get('url'));
+
+            $fileContent = $response->getBody();
+            $mimes = new \Mimey\MimeTypes;
+            $fileExtension = $mimes->getExtension($response->getHeaderLine('Content-Type'));
+
+            $picture = $pictureService->process($fileContent, $fileExtension);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['message' => $e->getMessage()]);
+        }
+
+        return redirect()->route('pictures.view', $picture->hash);
     }
 
     /**
