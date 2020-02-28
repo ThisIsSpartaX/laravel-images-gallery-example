@@ -40,6 +40,6 @@ class Picture extends Model
 
     public function getUrlAttribute()
     {
-        return '/' . PictureService::getPicturesDirectory() . '/' . $this->filename;
+        return PictureService::getFileUrl($this->filename, 'original');
     }
 }

@@ -9,7 +9,16 @@
                     @foreach($pictures as $picture)
                         <div class="col-4 mt-3">
                             <div class="card" style="width: 18rem;">
-                                <img class="card-img-top" src="{{ $picture->url }}" alt="">
+                                @if($picture->is_completed)
+                                    <img class="card-img-top" src="{{ $picture->url }}" alt="">
+                                @else
+                                    <div class="card-img-top">
+                                        <div class="mt-4 text-center font-weight-bold">
+                                            В обработке
+                                        </div>
+
+                                    </div>
+                                @endif
                                 <div class="card-body">
                                     <p class="card-text text-right">{{ $picture->created_at->format('Y-m-d H:i:s') }}</p>
                                     <p class="text-center">
