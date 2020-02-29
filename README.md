@@ -76,3 +76,34 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+## Set Amazon AWS credentials
+
+Get Api key in IAM Service
+https://console.aws.amazon.com/iam/home
+
+Ger bucket information in S3 service https://s3.console.aws.amazon.com/
+
+Set it in environment file:
+
+AWS_ACCESS_KEY_ID=
+
+AWS_SECRET_ACCESS_KEY=
+
+AWS_DEFAULT_REGION=
+
+AWS_BUCKET=
+
+AWS_URL=
+
+## Set Kraken IO credentials
+Create account in Kraken IO service https://kraken.io
+
+Get credentials here https://kraken.io/account/api-credentials
+
+Set it in environment file:
+
+KRAKEN_API_KEY=
+
+KRAKEN_API_SECRET=

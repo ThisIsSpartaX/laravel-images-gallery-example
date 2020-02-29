@@ -35,11 +35,23 @@ class Picture extends Model
     ];
 
     protected $appends = [
-        'url'
+        'original_url',
+        'thumbnail_url',
+        'lossy_url'
     ];
 
-    public function getUrlAttribute()
+    public function getOriginalUrlAttribute()
     {
         return PictureService::getFileUrl($this->filename, 'original');
+    }
+
+    public function getThumbnailUrlAttribute()
+    {
+        return PictureService::getFileUrl($this->filename, 'thumbnail');
+    }
+
+    public function getLossyUrlAttribute()
+    {
+        return PictureService::getFileUrl($this->filename, 'lossy');
     }
 }

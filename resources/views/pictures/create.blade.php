@@ -1,9 +1,10 @@
 @extends('layouts.simple')
 
 @section('content')
-    <div class="container">
-        <h1 class="h4">Добавить изображение</h1>
-            <div class="row">
+    <div class="mt-5 container">
+        <div class="ml-auto mr-auto" style="max-width: 600px;">
+            <h1 class="h4 text-center">Добавить изображение</h1>
+            <div class="row mt-4">
                 <div class="col-12">
                     <p>Для загрузки изображения выберите файл с компьютера:</p>
                 </div>
@@ -43,5 +44,6 @@
                 </div>
                 {!! csrf_field() !!}
             </form>
+        </div>
     </div>
 @endsection

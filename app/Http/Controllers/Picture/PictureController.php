@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Picture;
 
+use Illuminate\Http\Request;
 use App\Models\Picture\Picture;
 use App\Services\PictureService;
 use App\Http\Controllers\Controller;
@@ -17,7 +18,7 @@ class PictureController extends Controller
      */
     public function index()
     {
-        $pictures = Picture::all();
+        $pictures = Picture::orderBy('id', 'DESC')->paginate(100);
 
         return view('pictures/index', compact('pictures'));
     }
@@ -99,9 +100,37 @@ class PictureController extends Controller
     /**
      * Download Picture
      *
+     * @param Request $request
+     * @param string $hash
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @throws
      */
-    public function download()
+    public function download(Request $request, $hash)
     {
+        $picture = Picture::where('hash', $hash)->firstOrFail();
 
+        $compress = $request->query('compress');
+
+        if(!$request->has('compress')) {
+            $compress = 'original';
+        }
+
+        try {
+            $file = \Storage::disk('s3')->get(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
+        }
+        catch (\Exception $e) {
+            return view('partials.errors', ['message' => $e->getMessage(), 'code' => $e->getCode()]);
+        }
+
+        $mimeType = \Storage::disk('s3')->getMimetype(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
+
+        $fileName = \File::name($picture->filename) . '_' . $compress . '.' . \File::extension($picture->filename);
+
+        $headers = [
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => 'attachment; filename="'. $fileName .'"',
+        ];
+
+        return response()->make($file, 200, $headers);
     }
 }

@@ -8,7 +8,7 @@
                 <div class="col-12 mt-3">
                     <div class="card">
                         @if($picture->is_completed)
-                            <img class="card-img-top" src="{{ $picture->url }}" alt="">
+                            <img class="card-img-top" src="{{ $picture->lossy_url }}" alt="">
                         @else
                             <div class="card-img-top">
                                 <div class="mt-4 text-center font-weight-bold">

@@ -9,7 +9,6 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
-        "aws/aws-sdk-php-laravel": "~3.0",
         "fideloper/proxy": "^4.0",
         "kraken-io/kraken-php": "^1.6",
         "laravel/framework": "^6.2",
