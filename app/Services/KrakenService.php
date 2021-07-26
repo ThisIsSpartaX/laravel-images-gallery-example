@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Services;
 
-class KrakenService extends \Kraken
+use Kraken;
+
+class KrakenService extends Kraken
 {
     public function __construct()
     {

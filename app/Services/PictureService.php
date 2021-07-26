@@ -2,25 +2,25 @@
 
 namespace App\Services;
 
-use Str;
+use Illuminate\Support\Str;
 use App\Jobs\PictureProcessJob;
 use App\Models\Picture\Picture;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Storage;
+use \Illuminate\Contracts\Filesystem\Filesystem;
+use GuzzleHttp\Client as HttpClient;
 
 class PictureService
 {
-    /** @var \Illuminate\Filesystem\FilesystemAdapter */
-    public $localDisk;
+    public Filesystem $localDisk;
 
-    /** @var string */
-    public static $picturesDirectory = 'uploads' . DIRECTORY_SEPARATOR  . 'pictures';
+    public static string $picturesDirectory = 'uploads' . DIRECTORY_SEPARATOR  . 'pictures';
 
-    /** @var string */
-    public static $picturesS3Directory = 'uploads/pictures';
+    public static string $picturesS3Directory = 'uploads/pictures';
 
     public function __construct()
     {
-        $this->localDisk = \Storage::disk(config('filesystems.public'));
+        $this->localDisk = Storage::disk(config('filesystems.public'));
     }
 
     /**
@@ -28,7 +28,7 @@ class PictureService
      *
      * @return string
      */
-    public static function getPicturesDirectory()
+    public static function getPicturesDirectory(): string
     {
         return static::$picturesDirectory;
     }
@@ -38,7 +38,7 @@ class PictureService
      *
      * @return string
      */
-    public static function getPicturesS3Directory()
+    public static function getPicturesS3Directory(): string
     {
         return static::$picturesS3Directory;
     }
@@ -50,9 +50,10 @@ class PictureService
      * @return string
      * @throws
      */
-    public function getByUrl($url) {
+    public function getByUrl($url): string
+    {
 
-        $client = new \GuzzleHttp\Client();
+        $client = new HttpClient();
 
         try {
             $response = $client->get($url);
@@ -89,12 +90,12 @@ class PictureService
      * @return bool|Picture
      * @throws
      */
-    public function process(string $fileContent, $fileExtension)
+    public function process(string $fileContent, string $fileExtension)
     {
         //Generate name
         $fileName = $this->generateRandomName($fileExtension);
 
-        $filePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix() . PictureService::getPicturesDirectory() . DIRECTORY_SEPARATOR .  $fileName;
+        $filePath = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix() . PictureService::getPicturesDirectory() . DIRECTORY_SEPARATOR .  $fileName;
 
         //Save file to local storage
         $result = $this->storeLocal($fileContent, $fileName);
@@ -126,9 +127,9 @@ class PictureService
      * @param string $fileName
      * @return bool
      */
-    protected function storeLocal($fileContent, $fileName)
+    protected function storeLocal($fileContent, string $fileName): bool
     {
-        return \Storage::disk('local')->put(PictureService::getPicturesDirectory() . DIRECTORY_SEPARATOR . $fileName, $fileContent);
+        return Storage::disk('local')->put(PictureService::getPicturesDirectory() . DIRECTORY_SEPARATOR . $fileName, $fileContent);
     }
 
     /**
@@ -137,7 +138,7 @@ class PictureService
      * @param string $extension
      * @return string
      */
-    protected function generateRandomName($extension = 'png')
+    protected function generateRandomName(string $extension = 'png'): string
     {
         return Str::random(16) . '.' . $extension;
     }
@@ -149,7 +150,7 @@ class PictureService
      * @param string|null $subDirectory
      * @return string
      */
-    public static function getFileUrl(string $fileName, $subDirectory = '')
+    public static function getFileUrl(string $fileName, ?string $subDirectory = ''): string
     {
         return config('filesystems.disks.s3.url') . '/' . static::getPicturesS3Directory() . '/' . ($subDirectory ? $subDirectory . '/' : '') . $fileName;
     }
@@ -160,7 +161,7 @@ class PictureService
      * @param string $fileName
      * @return array
      */
-    protected function getSizes(string $fileName)
+    protected function getSizes(string $fileName): array
     {
         $configSizes = config('kraken.sizes');
 

@@ -3,41 +3,27 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use App\Service\KrakenService;
+use App\Services\KrakenService;
 use App\Models\Picture\Picture;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 
 class PictureProcessJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * @var Picture
-     */
-    protected $pictureRecord;
+    protected Picture $pictureRecord;
 
-    /**
-     * @var string
-     */
-    protected $filePath;
+    protected string $filePath;
 
-    /**
-     * @var string
-     */
-    protected $fileName;
+    protected string $fileName;
 
-    /**
-     * @var array
-     */
-    protected $sizes;
+    protected array $sizes;
 
-    /**
-     * @var KrakenService
-     */
-    protected $service;
+    protected KrakenService $service;
 
     /**
      * Create a new job instance.
@@ -49,7 +35,7 @@ class PictureProcessJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Picture $pictureRecord, $filePath, string $fileName, array $sizes)
+    public function __construct(Picture $pictureRecord, string $filePath, string $fileName, array $sizes)
     {
         $this->pictureRecord = $pictureRecord;
         $this->filePath = $filePath;
@@ -65,7 +51,7 @@ class PictureProcessJob implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info('Start PictureProcessJob');
+        Log::info('Start PictureProcessJob');
         $params = array(
             'file' => $this->filePath,
             'wait' => true,
@@ -80,6 +66,6 @@ class PictureProcessJob implements ShouldQueue
         $data = $this->service->upload($params);
         $this->pictureRecord->is_completed = true;
         $this->pictureRecord->save();
-        \Log::info($data);
+        Log::info($data);
     }
 }

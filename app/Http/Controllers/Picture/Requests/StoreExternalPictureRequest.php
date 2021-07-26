@@ -11,7 +11,7 @@ class StoreExternalPictureRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -22,7 +22,7 @@ class StoreExternalPictureRequest extends FormRequest
      * @return array
      * @throws
      */
-    public function rules()
+    public function rules(): array
     {
         return  [
             //'url' => ['required','url','regex:/(http|https):\/\/(www\.)?[\w-_\.]+\.[a-zA-Z]+\/((([\w-_\/]+)\/)?[\w-_\.]+\.(png$|jpe?g$))/i'],
@@ -30,7 +30,7 @@ class StoreExternalPictureRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'url' => 'URL'

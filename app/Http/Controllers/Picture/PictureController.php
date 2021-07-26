@@ -8,17 +8,23 @@ use App\Services\PictureService;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Picture\Requests\StorePictureRequest;
 use App\Http\Controllers\Picture\Requests\StoreExternalPictureRequest;
+use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\View\View;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class PictureController extends Controller
 {
     /**
      * Show Pictures List
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return ViewFactory|View
      */
     public function index()
     {
-        $pictures = Picture::orderBy('id', 'DESC')->paginate(100);
+        $pictures = Picture::query()->orderBy('id', 'DESC')->paginate(100);
 
         return view('pictures/index', compact('pictures'));
     }
@@ -26,7 +32,7 @@ class PictureController extends Controller
     /**
      * Show Picture Create Form
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return \Illuminate\Contracts\View\Factory|View
      */
     public function create()
     {
@@ -37,11 +43,11 @@ class PictureController extends Controller
      * View Picture
      *
      * @param string $hash
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return ViewFactory|View
      */
-    public function view($hash)
+    public function view(string $hash)
     {
-        $picture = Picture::where('hash', $hash)->firstOrFail();
+        $picture = Picture::query()->where('hash', $hash)->firstOrFail();
 
         return view('pictures/view', compact('picture'));
     }
@@ -50,15 +56,15 @@ class PictureController extends Controller
      * Store Uploaded Picture
      *
      * @param StorePictureRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      * @throws \Exception
      */
-    public function store(StorePictureRequest $request)
+    public function store(StorePictureRequest $request): RedirectResponse
     {
         $pictureService = new PictureService();
 
         $uploadedFile = $request->file('picture');
-        $fileContent = \File::get($uploadedFile->getRealPath());
+        $fileContent = File::get($uploadedFile->getRealPath());
         $fileExtension = $uploadedFile->getClientOriginalExtension();
 
         try {
@@ -74,10 +80,10 @@ class PictureController extends Controller
      * Store External Picture
      *
      * @param StoreExternalPictureRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      * @throws \Exception
      */
-    public function externalStore(StoreExternalPictureRequest $request)
+    public function externalStore(StoreExternalPictureRequest $request): RedirectResponse
     {
         $pictureService = new PictureService();
 
@@ -102,12 +108,13 @@ class PictureController extends Controller
      *
      * @param Request $request
      * @param string $hash
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return ViewFactory|View|BinaryFileResponse
      * @throws
      */
-    public function download(Request $request, $hash)
+    public function download(Request $request, string $hash)
     {
-        $picture = Picture::where('hash', $hash)->firstOrFail();
+        /** @var Picture $picture */
+        $picture = Picture::query()->where('hash', $hash)->firstOrFail();
 
         $compress = $request->query('compress');
 
@@ -115,16 +122,18 @@ class PictureController extends Controller
             $compress = 'original';
         }
 
+        $disk = Storage::disk('s3');
+
         try {
-            $file = \Storage::disk('s3')->get(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
+            $file = $disk->get(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
         }
         catch (\Exception $e) {
             return view('partials.errors', ['message' => $e->getMessage(), 'code' => $e->getCode()]);
         }
 
-        $mimeType = \Storage::disk('s3')->getMimetype(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
+        $mimeType = $disk->getMimetype(PictureService::getPicturesS3Directory() . '/' . $compress . '/' . $picture->filename);
 
-        $fileName = \File::name($picture->filename) . '_' . $compress . '.' . \File::extension($picture->filename);
+        $fileName = File::name($picture->filename) . '_' . $compress . '.' . File::extension($picture->filename);
 
         $headers = [
             'Content-Type'        => $mimeType,
